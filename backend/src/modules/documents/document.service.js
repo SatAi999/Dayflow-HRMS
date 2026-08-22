@@ -41,3 +41,7 @@ export const removeDocument = async (id, userId) => {
 
   await DocumentModel.findByIdAndDelete(id);
 };
+
+export const getAllDocuments = async () => {
+  return await DocumentModel.find({}).populate('employeeId', 'firstName lastName department');
+};

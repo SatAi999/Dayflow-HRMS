@@ -30,3 +30,12 @@ export const deleteDoc = async (req, res, next) => {
     res.status(400).json({ success: false, message: error.message, errorCode: 'BAD_REQUEST' });
   }
 };
+
+export const getAllDocs = async (req, res, next) => {
+  try {
+    const documents = await documentService.getAllDocuments();
+    res.status(200).json({ success: true, documents });
+  } catch (error) {
+    next(error);
+  }
+};
