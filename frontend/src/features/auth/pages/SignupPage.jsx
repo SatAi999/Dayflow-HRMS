@@ -47,8 +47,8 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-10 px-4">
-      <div className="w-full max-w-lg space-y-8 rounded-lg bg-white p-8 shadow-md border border-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-900 via-blue-800 to-slate-900 py-10 px-4">
+      <div className="w-full max-w-lg space-y-8 rounded-2xl bg-white/95 backdrop-blur-md p-8 shadow-2xl border border-white/20">
         <div className="text-center">
           <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Create Account</h2>
           <p className="mt-2 text-sm text-gray-500">Register a new profile in Dayflow HRMS</p>

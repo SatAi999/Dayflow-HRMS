@@ -17,7 +17,7 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-gray-50 text-gray-900 font-sans">
+    <div className="flex h-screen w-screen overflow-hidden bg-gradient-to-br from-slate-50 via-indigo-50/40 to-blue-50/30 text-gray-900 font-sans">
       {/* Sidebar Navigation */}
       <Sidebar
         user={user}
@@ -38,7 +38,7 @@ export default function DashboardLayout() {
         />
 
         {/* Scrollable Page Outlet */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-gray-50/70">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-gradient-to-tr from-indigo-50/30 via-transparent to-blue-50/40">
           <div className="max-w-7xl mx-auto">
             <Outlet />
           </div>
