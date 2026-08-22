@@ -18,6 +18,8 @@ export const generateToken = (user) => {
   );
 };
 
+import Employee from '../employees/employee.model.js';
+
 /**
  * Registers new user.
  */
@@ -32,6 +34,20 @@ export const registerUser = async (userData) => {
 
   const newUser = new User(userData);
   await newUser.save();
+
+  // Create an associated Employee profile with placeholder data
+  const newEmployee = new Employee({
+    userId: newUser._id,
+    firstName: 'New',
+    lastName: 'User',
+    phone: 'Not Provided',
+    address: 'Not Provided',
+    designation: 'Not Provided',
+    department: 'Not Provided',
+    joiningDate: new Date()
+  });
+  await newEmployee.save();
+
   return newUser;
 };
 

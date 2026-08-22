@@ -42,7 +42,7 @@ export const login = async (req, res, next) => {
 
 export const verifyEmail = async (req, res, next) => {
   try {
-    // Placeholder verification
+    // Mock verification: in a real system we'd check a verification token in req.body
     res.status(200).json({
       success: true,
       message: 'Email verified successfully.'
