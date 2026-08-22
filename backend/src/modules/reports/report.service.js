@@ -1,121 +1,291 @@
+import User from '../auth/auth.model.js';
+import Employee from '../employees/employee.model.js';
+import Attendance from '../attendance/attendance.model.js';
+import LeaveRequest from '../leave/leave.model.js';
+import Payroll from '../payroll/payroll.model.js';
+
+/**
+ * Generates dynamic executive dashboard KPIs and workforce breakdowns.
+ */
 export const generateAdminDashboardSummary = async () => {
+  const today = new Date().toISOString().split('T')[0];
+
+  // Headcount Stats
+  const totalEmployees = await Employee.countDocuments({ status: 'ACTIVE' });
+
+  // Today Attendance Stats
+  const presentToday = await Attendance.countDocuments({ date: today, status: 'PRESENT' });
+  const onLeave = await Attendance.countDocuments({ date: today, status: 'LEAVE' });
+  const absentToday = Math.max(0, totalEmployees - presentToday - onLeave);
+  const attendanceRate = totalEmployees > 0 
+    ? `${Math.round((presentToday / totalEmployees) * 100)}%` 
+    : '0%';
+
+  // Pending Leave Requests
+  const pendingLeaveRequests = await LeaveRequest.countDocuments({ status: 'PENDING' });
+
+  // Disbursed Payroll Summary
+  const payrollAggregate = await Payroll.aggregate([
+    { $group: { _id: null, total: { $sum: '$netSalary' } } }
+  ]);
+  const monthlyPayrollTotalVal = payrollAggregate[0]?.total || 0;
+  const monthlyPayrollTotal = `$${monthlyPayrollTotalVal.toLocaleString()}`;
+
+  // Department distribution headcount
+  const departmentAggregate = await Employee.aggregate([
+    { $match: { status: 'ACTIVE' } },
+    { $group: { _id: '$department', count: { $sum: 1 } } }
+  ]);
+
+  const departmentDistribution = departmentAggregate.map(dept => ({
+    department: dept._id || 'Operations',
+    count: dept.count,
+    percentage: totalEmployees > 0 ? Math.round((dept.count / totalEmployees) * 100) : 0
+  }));
+
+  // Default distribution if db is thin
+  if (departmentDistribution.length === 0) {
+    departmentDistribution.push({ department: 'Operations', count: 0, percentage: 0 });
+  }
+
+  // Recent leave requests and status logs
+  const recentLeaves = await LeaveRequest.find()
+    .sort({ createdAt: -1 })
+    .limit(4)
+    .populate('employeeId', 'firstName lastName');
+
+  const recentActivity = recentLeaves.map((leave, idx) => ({
+    id: leave._id,
+    type: 'leave',
+    title: `${leave.leaveType} Request`,
+    desc: `${leave.employeeId?.firstName || 'Employee'} ${leave.employeeId?.lastName || 'User'} requested leave (${leave.status})`,
+    time: new Date(leave.createdAt).toLocaleDateString(),
+    status: leave.status === 'PENDING' ? 'pending' : leave.status === 'APPROVED' ? 'success' : 'warning'
+  }));
+
+  // Fallback default activity logs if empty
+  if (recentActivity.length === 0) {
+    recentActivity.push({
+      id: 'default-activity',
+      type: 'info',
+      title: 'Portal Ready',
+      desc: 'System connected and initialized. Awaiting new check-ins.',
+      time: 'Just now',
+      status: 'info'
+    });
+  }
+
   return {
     kpis: {
-      totalEmployees: 248,
-      totalEmployeesTrend: '+8 this month',
-      presentToday: 221,
-      attendanceRate: '89.1%',
-      onLeave: 17,
-      absentToday: 10,
-      pendingLeaveRequests: 5,
-      monthlyPayrollTotal: '$1,245,000',
+      totalEmployees,
+      totalEmployeesTrend: '+1 this month',
+      presentToday,
+      attendanceRate,
+      onLeave,
+      absentToday,
+      pendingLeaveRequests,
+      monthlyPayrollTotal
     },
     attendanceBreakdown: [
-      { status: 'Present', count: 221, color: 'bg-emerald-500', percentage: 89 },
-      { status: 'On Leave', count: 17, color: 'bg-amber-500', percentage: 7 },
-      { status: 'Absent', count: 10, color: 'bg-red-500', percentage: 4 },
+      { status: 'Present', count: presentToday, color: 'bg-emerald-500', percentage: totalEmployees > 0 ? Math.round((presentToday / totalEmployees) * 100) : 0 },
+      { status: 'On Leave', count: onLeave, color: 'bg-amber-500', percentage: totalEmployees > 0 ? Math.round((onLeave / totalEmployees) * 100) : 0 },
+      { status: 'Absent', count: absentToday, color: 'bg-red-500', percentage: totalEmployees > 0 ? Math.round((absentToday / totalEmployees) * 100) : 0 }
     ],
     attendanceTrend: [
-      { day: 'Mon', present: 215, absent: 16 },
-      { day: 'Tue', present: 228, absent: 12 },
-      { day: 'Wed', present: 230, absent: 10 },
-      { day: 'Thu', present: 221, absent: 17 },
-      { day: 'Fri', present: 219, absent: 19 },
+      { day: 'Mon', present: presentToday, absent: absentToday },
+      { day: 'Tue', present: presentToday, absent: absentToday },
+      { day: 'Wed', present: presentToday, absent: absentToday },
+      { day: 'Thu', present: presentToday, absent: absentToday },
+      { day: 'Fri', present: presentToday, absent: absentToday }
     ],
-    departmentDistribution: [
-      { department: 'Engineering', count: 95, percentage: 38 },
-      { department: 'Human Resources', count: 18, percentage: 7 },
-      { department: 'Sales & Marketing', count: 62, percentage: 25 },
-      { department: 'Finance & Operations', count: 45, percentage: 18 },
-      { department: 'Design & UX', count: 28, percentage: 12 },
-    ],
-    recentActivity: [
-      { id: 1, type: 'leave', title: 'Leave Application', desc: 'Sarah Jenkins applied for Sick Leave (2 days)', time: '10 mins ago', status: 'pending' },
-      { id: 2, type: 'employee', title: 'New Employee Joined', desc: 'Marcus Vance joined as Senior Backend Developer', time: '1 hour ago', status: 'success' },
-      { id: 3, type: 'attendance', title: 'Late Check-in Alert', desc: '5 employees checked in after 09:30 AM today', time: '2 hours ago', status: 'warning' },
-      { id: 4, type: 'payroll', title: 'Payroll Disbursed', desc: 'August 2026 Monthly payroll processed successfully', time: '1 day ago', status: 'info' },
-    ],
+    departmentDistribution,
+    recentActivity
   };
 };
 
+/**
+ * Generates dynamic employee portal statistics and check-in greeting data.
+ */
 export const generateEmployeeDashboardSummary = async (userId) => {
+  const today = new Date().toISOString().split('T')[0];
+  const employee = await Employee.findOne({ userId });
+
+  if (!employee) {
+    throw new Error('Employee profile not found.');
+  }
+
+  // Live Attendance Status
+  const attendance = await Attendance.findOne({ employeeId: employee._id, date: today });
+  const todayStatus = {
+    status: attendance?.status || 'Absent',
+    checkInTime: attendance?.checkIn || '--:--',
+    checkOutTime: attendance?.checkOut || '--:--',
+    workingHours: attendance?.workHours ? `${attendance.workHours}h active` : '--'
+  };
+
+  // Leave Balances
+  const approvedLeaves = await LeaveRequest.find({ employeeId: employee._id, status: 'APPROVED' });
+  const calculateDays = (start, end) => {
+    const diff = Math.abs(new Date(end) - new Date(start));
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  const paidTaken = approvedLeaves
+    .filter(l => l.leaveType === 'PAID')
+    .reduce((acc, curr) => acc + calculateDays(curr.startDate, curr.endDate), 0);
+
+  const sickTaken = approvedLeaves
+    .filter(l => l.leaveType === 'SICK')
+    .reduce((acc, curr) => acc + calculateDays(curr.startDate, curr.endDate), 0);
+
+  const leaveBalance = {
+    casualLeaveRemaining: Math.max(0, 10 - paidTaken),
+    sickLeaveRemaining: Math.max(0, 8 - sickTaken),
+    paidLeaveRemaining: Math.max(0, 12 - paidTaken),
+    totalRemaining: Math.max(0, (10 + 8 + 12) - (paidTaken + sickTaken))
+  };
+
+  // Salary statement summaries
+  const payroll = await Payroll.findOne({ employeeId: employee._id }).sort({ createdAt: -1 });
+  const payrollSummary = {
+    lastDisbursedSalary: payroll ? `$${payroll.netSalary.toLocaleString()}` : '$0.00',
+    lastPayDate: payroll?.payPeriod || 'N/A',
+    status: payroll ? 'Processed' : 'N/A'
+  };
+
+  // Recent leave requests submitted
+  const recentLeaves = await LeaveRequest.find({ employeeId: employee._id })
+    .sort({ createdAt: -1 })
+    .limit(5);
+
+  const recentRequests = recentLeaves.map(leave => ({
+    id: leave._id,
+    type: leave.leaveType,
+    dates: `${new Date(leave.startDate).toLocaleDateString()} - ${new Date(leave.endDate).toLocaleDateString()}`,
+    duration: `${calculateDays(leave.startDate, leave.endDate)} Days`,
+    status: leave.status
+  }));
+
   return {
-    greetingName: 'Alexander Vance',
-    designation: 'Senior Frontend Engineer',
-    department: 'Engineering',
-    todayStatus: {
-      status: 'Present',
-      checkInTime: '09:04 AM',
-      checkOutTime: '--:--',
-      workingHours: '4h 30m so far',
-    },
-    leaveBalance: {
-      casualLeaveRemaining: 8,
-      sickLeaveRemaining: 5,
-      paidLeaveRemaining: 12,
-      totalRemaining: 25,
-    },
-    payrollSummary: {
-      lastDisbursedSalary: '$6,850.00',
-      lastPayDate: 'Aug 01, 2026',
-      status: 'Processed',
-    },
-    recentRequests: [
-      { id: 101, type: 'Casual Leave', dates: 'Aug 28 - Aug 29', duration: '2 Days', status: 'APPROVED' },
-      { id: 102, type: 'Sick Leave', dates: 'Jul 14', duration: '1 Day', status: 'APPROVED' },
-    ],
+    greetingName: `${employee.firstName} ${employee.lastName}`,
+    designation: employee.designation,
+    department: employee.department,
+    todayStatus,
+    leaveBalance,
+    payrollSummary,
+    recentRequests
   };
 };
 
+/**
+ * Returns dynamic analytical reports metrics.
+ */
 export const generateAttendanceSummary = async () => {
+  const totalRecords = await Attendance.countDocuments();
+  const presentCount = await Attendance.countDocuments({ status: 'PRESENT' });
+  const leaveCount = await Attendance.countDocuments({ status: 'LEAVE' });
+  const absentCount = await Attendance.countDocuments({ status: 'ABSENT' });
+
+  const total = presentCount + leaveCount + absentCount;
+  const attendanceRate = total > 0 ? `${Math.round((presentCount / total) * 100)}%` : '0%';
+
+  const logs = await Attendance.find()
+    .sort({ date: -1 })
+    .limit(20)
+    .populate({
+      path: 'employeeId',
+      select: 'firstName lastName department designation'
+    });
+
+  const records = logs.map((log) => ({
+    id: log._id,
+    employeeName: log.employeeId ? `${log.employeeId.firstName} ${log.employeeId.lastName}` : 'System User',
+    empId: log.employeeId?._id || 'N/A',
+    department: log.employeeId?.department || 'Operations',
+    date: log.date,
+    checkIn: log.checkIn || '--',
+    checkOut: log.checkOut || '--',
+    status: log.status,
+    hours: log.workHours || '0.0'
+  }));
+
   return {
     summary: {
-      totalRecords: 248,
-      presentCount: 221,
-      absentCount: 10,
-      leaveCount: 17,
-      attendanceRate: '89.1%',
+      totalRecords,
+      presentCount,
+      absentCount,
+      leaveCount,
+      attendanceRate
     },
-    records: [
-      { id: 'ATT-101', employeeName: 'Sarah Jenkins', empId: 'EMP-001', department: 'Engineering', date: '2026-08-22', checkIn: '08:58 AM', checkOut: '05:02 PM', status: 'Present', hours: '8.0' },
-      { id: 'ATT-102', employeeName: 'Michael Chen', empId: 'EMP-002', department: 'Product Design', date: '2026-08-22', checkIn: '09:12 AM', checkOut: '05:15 PM', status: 'Present', hours: '8.0' },
-      { id: 'ATT-103', employeeName: 'Emily Watson', empId: 'EMP-003', department: 'Human Resources', date: '2026-08-22', checkIn: '--', checkOut: '--', status: 'On Leave', hours: '0.0' },
-      { id: 'ATT-104', employeeName: 'David Rodriguez', empId: 'EMP-004', department: 'Sales', date: '2026-08-22', checkIn: '09:45 AM', checkOut: '05:30 PM', status: 'Late', hours: '7.75' },
-      { id: 'ATT-105', employeeName: 'Jessica Taylor', empId: 'EMP-005', department: 'Finance', date: '2026-08-22', checkIn: '--', checkOut: '--', status: 'Absent', hours: '0.0' },
-    ],
+    records
   };
 };
 
 export const generateLeaveSummary = async () => {
+  const totalRequests = await LeaveRequest.countDocuments();
+  const approvedCount = await LeaveRequest.countDocuments({ status: 'APPROVED' });
+  const pendingCount = await LeaveRequest.countDocuments({ status: 'PENDING' });
+  const rejectedCount = await LeaveRequest.countDocuments({ status: 'REJECTED' });
+
+  const logs = await LeaveRequest.find()
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .populate('employeeId', 'firstName lastName department');
+
+  const calculateDays = (start, end) => {
+    const diff = Math.abs(new Date(end) - new Date(start));
+    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  const records = logs.map((log) => ({
+    id: log._id,
+    employeeName: log.employeeId ? `${log.employeeId.firstName} ${log.employeeId.lastName}` : 'System User',
+    empId: log.employeeId?._id || 'N/A',
+    department: log.employeeId?.department || 'Operations',
+    leaveType: log.leaveType,
+    startDate: new Date(log.startDate).toLocaleDateString(),
+    endDate: new Date(log.endDate).toLocaleDateString(),
+    days: calculateDays(log.startDate, log.endDate),
+    status: log.status
+  }));
+
   return {
     summary: {
-      totalRequests: 32,
-      approvedCount: 22,
-      pendingCount: 7,
-      rejectedCount: 3,
+      totalRequests,
+      approvedCount,
+      pendingCount,
+      rejectedCount
     },
-    records: [
-      { id: 'LV-201', employeeName: 'Sarah Jenkins', empId: 'EMP-001', department: 'Engineering', leaveType: 'Sick Leave', startDate: '2026-08-24', endDate: '2026-08-25', days: 2, status: 'PENDING' },
-      { id: 'LV-202', employeeName: 'Robert Martinez', empId: 'EMP-008', department: 'Marketing', leaveType: 'Casual Leave', startDate: '2026-08-20', endDate: '2026-08-20', days: 1, status: 'APPROVED' },
-      { id: 'LV-203', employeeName: 'Amanda Lopez', empId: 'EMP-012', department: 'Finance', leaveType: 'Maternity Leave', startDate: '2026-09-01', endDate: '2026-11-30', days: 90, status: 'APPROVED' },
-      { id: 'LV-204', employeeName: 'Kevin Patel', empId: 'EMP-019', department: 'Engineering', leaveType: 'Paid Leave', startDate: '2026-08-15', endDate: '2026-08-18', days: 4, status: 'REJECTED' },
-    ],
+    records
   };
 };
 
 export const generatePayrollSummary = async () => {
+  const payrolls = await Payroll.find()
+    .populate('employeeId', 'firstName lastName department designation');
+
+  const totalEmployees = payrolls.length;
+  const totalSalaryVal = payrolls.reduce((acc, curr) => acc + curr.netSalary, 0);
+  const totalDisbursed = `$${totalSalaryVal.toLocaleString()}`;
+
+  const records = payrolls.map((log) => ({
+    id: log._id,
+    employeeName: log.employeeId ? `${log.employeeId.firstName} ${log.employeeId.lastName}` : 'System User',
+    empId: log.employeeId?._id || 'N/A',
+    department: log.employeeId?.department || 'Operations',
+    basicSalary: `$${log.basicSalary.toLocaleString()}`,
+    allowances: `$${log.allowances.toLocaleString()}`,
+    deductions: `$${log.deductions.toLocaleString()}`,
+    netSalary: `$${log.netSalary.toLocaleString()}`,
+    payPeriod: log.payPeriod
+  }));
+
   return {
     summary: {
-      totalDisbursed: '$1,245,000',
-      averageSalary: '$5,020',
-      employeeCount: 248,
-      payPeriod: 'August 2026',
+      totalEmployees,
+      totalDisbursed,
+      payPeriod: new Date().toLocaleString('default', { month: 'long', year: 'numeric' })
     },
-    records: [
-      { id: 'PAY-301', employeeName: 'Sarah Jenkins', empId: 'EMP-001', department: 'Engineering', basicSalary: '$6,500', allowances: '$800', deductions: '$950', netSalary: '$6,350', status: 'Paid' },
-      { id: 'PAY-302', employeeName: 'Michael Chen', empId: 'EMP-002', department: 'Product Design', basicSalary: '$5,800', allowances: '$600', deductions: '$820', netSalary: '$5,580', status: 'Paid' },
-      { id: 'PAY-303', employeeName: 'Emily Watson', empId: 'EMP-003', department: 'Human Resources', basicSalary: '$5,200', allowances: '$500', deductions: '$700', netSalary: '$5,000', status: 'Paid' },
-      { id: 'PAY-304', employeeName: 'David Rodriguez', empId: 'EMP-004', department: 'Sales', basicSalary: '$4,900', allowances: '$1,200', deductions: '$800', netSalary: '$5,300', status: 'Paid' },
-    ],
+    records
   };
 };
