@@ -61,6 +61,19 @@ export default function LeavePage() {
     }
   };
 
+  const calculateDays = (start, end) => {
+    const diffTime = Math.abs(new Date(end) - new Date(start));
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  };
+
+  const paidLeavesTaken = leaves
+    .filter(l => l.leaveType === 'PAID' && l.status === 'APPROVED')
+    .reduce((acc, curr) => acc + calculateDays(curr.startDate, curr.endDate), 0);
+
+  const sickLeavesTaken = leaves
+    .filter(l => l.leaveType === 'SICK' && l.status === 'APPROVED')
+    .reduce((acc, curr) => acc + calculateDays(curr.startDate, curr.endDate), 0);
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'APPROVED':
@@ -76,18 +89,17 @@ export default function LeavePage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Leave Applications</h1>
-        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Developer: Member 3</span>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-          <h3 className="text-sm font-medium text-gray-500">Paid Leave Balance</h3>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">12 Days</p>
+          <h3 className="text-sm font-medium text-gray-500">Paid Leaves Taken</h3>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{paidLeavesTaken} Days</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-medium text-gray-500">Sick Leaves Taken</h3>
-          <p className="mt-2 text-3xl font-semibold text-gray-900">3 Days</p>
+          <p className="mt-2 text-3xl font-semibold text-gray-900">{sickLeavesTaken} Days</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-sm font-medium text-gray-500">Pending Applications</h3>

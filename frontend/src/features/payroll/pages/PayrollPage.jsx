@@ -42,7 +42,6 @@ export default function PayrollPage() {
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">My Payroll & Salary Structure</h1>
-        <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Developer: Member 3</span>
       </div>
 
       {error ? (
