@@ -1,5 +1,5 @@
 import express from 'express';
-import { checkIn, checkOut, getMyAttendance, getAttendanceList, getEmployeeAttendance } from './attendance.controller.js';
+import { checkIn, checkOut, getTodayStatus, getMyAttendance, getAttendanceList, getEmployeeAttendance } from './attendance.controller.js';
 import { requireAuth } from '../../middleware/auth.middleware.js';
 import { requireRole } from '../../middleware/role.middleware.js';
 
@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.post('/check-in', requireAuth, checkIn);
 router.post('/check-out', requireAuth, checkOut);
+router.get('/today', requireAuth, getTodayStatus);
 router.get('/me', requireAuth, getMyAttendance);
 
 // HR and Admin view options
