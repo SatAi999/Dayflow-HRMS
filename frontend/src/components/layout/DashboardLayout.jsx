@@ -38,8 +38,12 @@ export default function DashboardLayout() {
         />
 
         {/* Scrollable Page Outlet */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-gradient-to-tr from-indigo-50/30 via-transparent to-blue-50/40">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 bg-gradient-to-tr from-indigo-50/20 via-transparent to-blue-50/30 relative">
+          {/* Ambient Glow Orbs */}
+          <div className="absolute top-0 right-0 w-[450px] h-[450px] bg-blue-400/8 blur-[100px] rounded-full pointer-events-none z-0" />
+          <div className="absolute bottom-20 left-10 w-[350px] h-[350px] bg-purple-400/8 blur-[90px] rounded-full pointer-events-none z-0" />
+          
+          <div className="max-w-7xl mx-auto relative z-10">
             <Outlet />
           </div>
         </main>

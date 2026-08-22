@@ -21,7 +21,7 @@ export default function PageHeader({ title, description, breadcrumbs = [], actio
             ))}
           </nav>
         )}
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{title}</h1>
+        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-indigo-900 tracking-tight">{title}</h1>
         {description && <p className="text-xs sm:text-sm text-gray-500 mt-1">{description}</p>}
       </div>
 

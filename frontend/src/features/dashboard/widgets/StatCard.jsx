@@ -5,7 +5,7 @@ export default function StatCard({ title, value, icon: Icon, trend, trendColor =
   return (
     <div
       onClick={onClick}
-      className={`bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/60 p-5.5 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+      className={`bg-gradient-to-b from-white to-slate-50/20 backdrop-blur-md rounded-2xl border border-slate-200/50 p-6 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_10px_35px_-8px_rgba(59,130,246,0.08)] hover:border-blue-500/20 hover:-translate-y-1 ${
         onClick ? 'cursor-pointer hover:border-blue-400' : ''
       }`}
     >
