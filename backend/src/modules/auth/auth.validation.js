@@ -12,8 +12,9 @@ export const validateSignup = (data) => {
     errors.push('A valid email address is required.');
   }
 
-  if (!data.password || data.password.length < 6) {
-    errors.push('Password must be at least 6 characters long.');
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  if (!data.password || !passwordRegex.test(data.password)) {
+    errors.push('Password must be at least 8 characters long, include one uppercase letter, one number, and one special character.');
   }
 
   if (errors.length > 0) {
