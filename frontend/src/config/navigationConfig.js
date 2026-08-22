@@ -1,0 +1,62 @@
+export const NAV_ITEMS = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    adminPath: '/admin/dashboard',
+    employeePath: '/employee/dashboard',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+  {
+    id: 'employees',
+    label: 'Employees Management',
+    adminPath: '/admin/employees',
+    roles: ['ADMIN', 'HR'],
+  },
+  {
+    id: 'attendance',
+    label: 'Attendance Logs',
+    adminPath: '/admin/attendance',
+    employeePath: '/employee/attendance',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+  {
+    id: 'leave',
+    label: 'Leave Applications',
+    adminPath: '/admin/leave',
+    employeePath: '/employee/leave',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+  {
+    id: 'leave-calendar',
+    label: 'Leave Calendar',
+    employeePath: '/employee/leave/calendar',
+    roles: ['EMPLOYEE'],
+  },
+  {
+    id: 'payroll',
+    label: 'Payroll Controls',
+    adminPath: '/admin/payroll',
+    employeePath: '/employee/payroll',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+  {
+    id: 'documents',
+    label: 'Documents Archive',
+    adminPath: '/admin/documents',
+    employeePath: '/employee/documents',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+  {
+    id: 'reports',
+    label: 'Analytics & Reports',
+    adminPath: '/admin/reports',
+    roles: ['ADMIN', 'HR'],
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    adminPath: '/admin/notifications',
+    employeePath: '/employee/notifications',
+    roles: ['ADMIN', 'HR', 'EMPLOYEE'],
+  },
+];
