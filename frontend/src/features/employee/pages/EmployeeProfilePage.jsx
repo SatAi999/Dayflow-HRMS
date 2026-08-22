@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../../../context/AuthContext';
 import { ENDPOINTS } from '../../../services/api/endpoints';
@@ -9,12 +9,36 @@ export default function EmployeeProfilePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [documents, setDocuments] = useState([]);
+  const [payroll, setPayroll] = useState(null);
 
   const [formData, setFormData] = useState({
     phone: user?.phone || '',
     address: user?.address || '',
     profilePicture: user?.profilePicture || ''
   });
+
+  useEffect(() => {
+    if (user) {
+      // Load documents from database
+      axios.get(ENDPOINTS.DOCUMENTS.ME)
+        .then((res) => {
+          if (res.data.success) {
+            setDocuments(res.data.documents);
+          }
+        })
+        .catch(() => {});
+
+      // Load payroll details from database
+      axios.get(ENDPOINTS.PAYROLL.ME)
+        .then((res) => {
+          if (res.data.success) {
+            setPayroll(res.data.payroll);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user]);
 
   if (!user) {
     return <div className="p-6">Loading profile...</div>;
@@ -175,11 +199,43 @@ export default function EmployeeProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">Salary Structure</h3>
-          <p className="text-sm text-gray-500 italic">No salary data available in this module view.</p>
+          {payroll ? (
+            <div className="space-y-2 text-sm text-gray-700">
+              <div className="flex justify-between border-b pb-1">
+                <span>Basic Salary:</span>
+                <span className="font-semibold">${payroll.basicSalary}</span>
+              </div>
+              <div className="flex justify-between border-b pb-1">
+                <span>Allowances:</span>
+                <span className="font-semibold text-green-600">+${payroll.allowances}</span>
+              </div>
+              <div className="flex justify-between border-b pb-1">
+                <span>Deductions:</span>
+                <span className="font-semibold text-red-600">-${payroll.deductions}</span>
+              </div>
+              <div className="flex justify-between pt-1 text-base font-bold text-gray-950">
+                <span>Net Salary:</span>
+                <span>${payroll.netSalary}</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 italic">No salary configuration found.</p>
+          )}
         </div>
         <div className="bg-white rounded-lg shadow border border-gray-200 p-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4">My Documents</h3>
-          <p className="text-sm text-gray-500 italic">No documents uploaded yet.</p>
+          {documents && documents.length > 0 ? (
+            <ul className="space-y-2 divide-y divide-gray-150">
+              {documents.map((doc) => (
+                <li key={doc._id} className="pt-2 first:pt-0 flex justify-between items-center text-sm text-gray-700">
+                  <span className="truncate pr-4">{doc.fileName}</span>
+                  <span className="text-xs text-gray-400">{(doc.fileSize / 1024).toFixed(1)} KB</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500 italic">No documents uploaded yet.</p>
+          )}
         </div>
       </div>
     </div>

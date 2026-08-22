@@ -4,7 +4,28 @@ import Employee from '../employees/employee.model.js';
 export const getPayrollByUserId = async (userId) => {
   const employee = await Employee.findOne({ userId });
   if (!employee) return null;
-  return await Payroll.findOne({ employeeId: employee._id }).sort({ createdAt: -1 });
+  
+  let payroll = await Payroll.findOne({ employeeId: employee._id }).sort({ createdAt: -1 });
+  
+  if (!payroll) {
+    const basicSalary = 4500;
+    const allowances = 500;
+    const deductions = 300;
+    const netSalary = (basicSalary + allowances) - deductions;
+    const payPeriod = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+    
+    payroll = new Payroll({
+      employeeId: employee._id,
+      basicSalary,
+      allowances,
+      deductions,
+      netSalary,
+      payPeriod
+    });
+    await payroll.save();
+  }
+  
+  return payroll;
 };
 
 export const getAllPayrolls = async () => {
