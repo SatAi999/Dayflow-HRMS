@@ -1,7 +1,30 @@
 import Employee from './employee.model.js';
+import User from '../auth/auth.model.js';
 
 export const getEmployeeByUserId = async (userId) => {
-  return await Employee.findOne({ userId }).populate('userId', 'email employeeId role isVerified');
+  let employee = await Employee.findOne({ userId }).populate('userId', 'email employeeId role isVerified');
+  
+  if (!employee) {
+    const user = await User.findById(userId);
+    if (user) {
+      const defaultEmployee = new Employee({
+        userId: user._id,
+        firstName: 'Employee',
+        lastName: 'User',
+        phone: '0000000000',
+        address: 'Address Placeholder',
+        designation: user.role === 'ADMIN' || user.role === 'HR' ? 'HR Specialist' : 'Staff Associate',
+        department: 'Operations',
+        joiningDate: new Date()
+      });
+      await defaultEmployee.save();
+      
+      // Fetch the populated new profile
+      employee = await Employee.findOne({ userId }).populate('userId', 'email employeeId role isVerified');
+    }
+  }
+  
+  return employee;
 };
 
 export const updateEmployeeProfile = async (userId, updateData) => {
