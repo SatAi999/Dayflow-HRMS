@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET, JWT_EXPIRES_IN } from '../../config/environment.js';
 import User from './auth.model.js';
+import Employee from '../employees/employee.model.js';
 
 /**
  * Generates JWT authorization tokens.
@@ -18,10 +19,8 @@ export const generateToken = (user) => {
   );
 };
 
-import Employee from '../employees/employee.model.js';
-
 /**
- * Registers new user.
+ * Registers new user and synchronizes their Employee profile document.
  */
 export const registerUser = async (userData) => {
   const existingUser = await User.findOne({
@@ -32,21 +31,27 @@ export const registerUser = async (userData) => {
     throw new Error('User with this email or Employee ID already exists.');
   }
 
-  const newUser = new User(userData);
+  // 1. Create and save the User credentials document
+  const newUser = new User({
+    employeeId: userData.employeeId,
+    email: userData.email,
+    password: userData.password,
+    role: userData.role || 'EMPLOYEE'
+  });
   await newUser.save();
 
-  // Create an associated Employee profile with placeholder data
-  const newEmployee = new Employee({
+  // 2. Synchronize by creating the associated Employee profile document
+  const defaultEmployee = new Employee({
     userId: newUser._id,
-    firstName: 'New',
-    lastName: 'User',
-    phone: 'Not Provided',
-    address: 'Not Provided',
-    designation: 'Not Provided',
-    department: 'Not Provided',
+    firstName: userData.firstName || 'Employee',
+    lastName: userData.lastName || 'User',
+    phone: userData.phone || '0000000000',
+    address: userData.address || 'Address Placeholder',
+    designation: userData.role === 'ADMIN' || userData.role === 'HR' ? 'HR Specialist' : 'Staff Associate',
+    department: 'Operations',
     joiningDate: new Date()
   });
-  await newEmployee.save();
+  await defaultEmployee.save();
 
   return newUser;
 };
