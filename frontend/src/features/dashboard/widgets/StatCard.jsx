@@ -5,8 +5,8 @@ export default function StatCard({ title, value, icon: Icon, trend, trendColor =
   return (
     <div
       onClick={onClick}
-      className={`bg-white rounded-xl border border-gray-200/80 p-5 shadow-xs transition-all duration-200 hover:shadow-md ${
-        onClick ? 'cursor-pointer hover:border-blue-300' : ''
+      className={`bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/60 p-5.5 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+        onClick ? 'cursor-pointer hover:border-blue-400' : ''
       }`}
     >
       <div className="flex items-center justify-between">

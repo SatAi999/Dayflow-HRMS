@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 
 export default function Card({ children, title, subtitle, action, className = '', headerClassName = '', bodyClassName = '' }) {
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md ${className}`}>
+    <div className={`bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${className}`}>
       {(title || subtitle || action) && (
         <div className={`px-6 py-4 border-b border-gray-100 flex items-center justify-between ${headerClassName}`}>
           <div>
