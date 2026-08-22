@@ -19,6 +19,14 @@ const attendanceSchema = new mongoose.Schema(
     checkOut: {
       type: Date
     },
+    workHours: {
+      type: Number,
+      default: 0
+    },
+    notes: {
+      type: String,
+      default: ''
+    },
     status: {
       type: String,
       enum: ATTENDANCE_STATUS_LIST,
