@@ -1,0 +1,8 @@
+export const ATTENDANCE_STATUS = {
+  PRESENT: 'PRESENT',
+  ABSENT: 'ABSENT',
+  HALF_DAY: 'HALF_DAY',
+  LEAVE: 'LEAVE'
+};
+
+export const ATTENDANCE_STATUS_LIST = Object.values(ATTENDANCE_STATUS);

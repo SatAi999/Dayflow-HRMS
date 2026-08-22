@@ -1,0 +1,7 @@
+export const LEAVE_STATUS = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+export const LEAVE_STATUS_LIST = Object.values(LEAVE_STATUS);

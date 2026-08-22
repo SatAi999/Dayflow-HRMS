@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+/jspm_packages/
+
+# Production builds
+dist/
+build/
+
+# Environment configurations
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor folders
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary / diagnostic files
+.eslintcache
+.parcel-cache
+.nyc_output
+.coverage
+coverage/
+.next/
+out/

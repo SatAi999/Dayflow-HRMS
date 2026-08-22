@@ -1,0 +1,12 @@
+{
+  "name": "dayflow-hrms",
+  "version": "1.0.0",
+  "description": "Dayflow Human Resource Management System - Monorepo Scaffolding",
+  "scripts": {
+    "bootstrap": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev-backend": "cd backend && npm run dev",
+    "dev-frontend": "cd frontend && npm run dev",
+    "start-all": "node scripts/run-all.js",
+    "build-frontend": "cd frontend && npm run build"
+  }
+}
