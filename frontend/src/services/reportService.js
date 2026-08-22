@@ -1,73 +1,15 @@
-export const generateAdminDashboardSummary = async () => {
-  return {
-    kpis: {
-      totalEmployees: 248,
-      totalEmployeesTrend: '+8 this month',
-      presentToday: 221,
-      attendanceRate: '89.1%',
-      onLeave: 17,
-      absentToday: 10,
-      pendingLeaveRequests: 5,
-      monthlyPayrollTotal: '$1,245,000',
-    },
-    attendanceBreakdown: [
-      { status: 'Present', count: 221, color: 'bg-emerald-500', percentage: 89 },
-      { status: 'On Leave', count: 17, color: 'bg-amber-500', percentage: 7 },
-      { status: 'Absent', count: 10, color: 'bg-red-500', percentage: 4 },
-    ],
-    attendanceTrend: [
-      { day: 'Mon', present: 215, absent: 16 },
-      { day: 'Tue', present: 228, absent: 12 },
-      { day: 'Wed', present: 230, absent: 10 },
-      { day: 'Thu', present: 221, absent: 17 },
-      { day: 'Fri', present: 219, absent: 19 },
-    ],
-    departmentDistribution: [
-      { department: 'Engineering', count: 95, percentage: 38 },
-      { department: 'Human Resources', count: 18, percentage: 7 },
-      { department: 'Sales & Marketing', count: 62, percentage: 25 },
-      { department: 'Finance & Operations', count: 45, percentage: 18 },
-      { department: 'Design & UX', count: 28, percentage: 12 },
-    ],
-    recentActivity: [
-      { id: 1, type: 'leave', title: 'Leave Application', desc: 'Sarah Jenkins applied for Sick Leave (2 days)', time: '10 mins ago', status: 'pending' },
-      { id: 2, type: 'employee', title: 'New Employee Joined', desc: 'Marcus Vance joined as Senior Backend Developer', time: '1 hour ago', status: 'success' },
-      { id: 3, type: 'attendance', title: 'Late Check-in Alert', desc: '5 employees checked in after 09:30 AM today', time: '2 hours ago', status: 'warning' },
-      { id: 4, type: 'payroll', title: 'Payroll Disbursed', desc: 'August 2026 Monthly payroll processed successfully', time: '1 day ago', status: 'info' },
-    ],
-  };
-};
+import axios from 'axios';
 
-export const generateEmployeeDashboardSummary = async (userId) => {
-  return {
-    greetingName: 'Alexander Vance',
-    designation: 'Senior Frontend Engineer',
-    department: 'Engineering',
-    todayStatus: {
-      status: 'Present',
-      checkInTime: '09:04 AM',
-      checkOutTime: '--:--',
-      workingHours: '4h 30m so far',
-    },
-    leaveBalance: {
-      casualLeaveRemaining: 8,
-      sickLeaveRemaining: 5,
-      paidLeaveRemaining: 12,
-      totalRemaining: 25,
-    },
-    payrollSummary: {
-      lastDisbursedSalary: '$6,850.00',
-      lastPayDate: 'Aug 01, 2026',
-      status: 'Processed',
-    },
-    recentRequests: [
-      { id: 101, type: 'Casual Leave', dates: 'Aug 28 - Aug 29', duration: '2 Days', status: 'APPROVED' },
-      { id: 102, type: 'Sick Leave', dates: 'Jul 14', duration: '1 Day', status: 'APPROVED' },
-    ],
-  };
-};
+const API_BASE = '/api/reports';
 
-export const generateAttendanceSummary = async () => {
+export const fetchAttendanceReport = async (filters = {}) => {
+  try {
+    const res = await axios.get(`${API_BASE}/attendance`, { params: filters });
+    if (res.data?.success) return res.data.report;
+  } catch (e) {
+    console.warn('Using report mock fallback data for attendance');
+  }
+
   return {
     summary: {
       totalRecords: 248,
@@ -86,7 +28,14 @@ export const generateAttendanceSummary = async () => {
   };
 };
 
-export const generateLeaveSummary = async () => {
+export const fetchLeaveReport = async (filters = {}) => {
+  try {
+    const res = await axios.get(`${API_BASE}/leave`, { params: filters });
+    if (res.data?.success) return res.data.report;
+  } catch (e) {
+    console.warn('Using report mock fallback data for leave');
+  }
+
   return {
     summary: {
       totalRequests: 32,
@@ -103,7 +52,14 @@ export const generateLeaveSummary = async () => {
   };
 };
 
-export const generatePayrollSummary = async () => {
+export const fetchPayrollReport = async (filters = {}) => {
+  try {
+    const res = await axios.get(`${API_BASE}/payroll`, { params: filters });
+    if (res.data?.success) return res.data.report;
+  } catch (e) {
+    console.warn('Using report mock fallback data for payroll');
+  }
+
   return {
     summary: {
       totalDisbursed: '$1,245,000',
@@ -116,6 +72,30 @@ export const generatePayrollSummary = async () => {
       { id: 'PAY-302', employeeName: 'Michael Chen', empId: 'EMP-002', department: 'Product Design', basicSalary: '$5,800', allowances: '$600', deductions: '$820', netSalary: '$5,580', status: 'Paid' },
       { id: 'PAY-303', employeeName: 'Emily Watson', empId: 'EMP-003', department: 'Human Resources', basicSalary: '$5,200', allowances: '$500', deductions: '$700', netSalary: '$5,000', status: 'Paid' },
       { id: 'PAY-304', employeeName: 'David Rodriguez', empId: 'EMP-004', department: 'Sales', basicSalary: '$4,900', allowances: '$1,200', deductions: '$800', netSalary: '$5,300', status: 'Paid' },
+    ],
+  };
+};
+
+export const fetchEmployeeReport = async (filters = {}) => {
+  try {
+    const res = await axios.get('/api/employees', { params: filters });
+    if (res.data?.success) return res.data;
+  } catch (e) {
+    console.warn('Using report mock fallback data for employees');
+  }
+
+  return {
+    summary: {
+      totalEmployees: 248,
+      activeEmployees: 240,
+      onBoarding: 5,
+      terminated: 3,
+    },
+    records: [
+      { id: 'EMP-001', name: 'Sarah Jenkins', email: 'sarah.j@dayflow.com', department: 'Engineering', designation: 'Lead Frontend Developer', joiningDate: '2023-03-15', status: 'ACTIVE' },
+      { id: 'EMP-002', name: 'Michael Chen', email: 'michael.c@dayflow.com', department: 'Product Design', designation: 'Senior Product Designer', joiningDate: '2023-06-01', status: 'ACTIVE' },
+      { id: 'EMP-003', name: 'Emily Watson', email: 'emily.w@dayflow.com', department: 'Human Resources', designation: 'HR Business Partner', joiningDate: '2022-11-10', status: 'ACTIVE' },
+      { id: 'EMP-004', name: 'David Rodriguez', email: 'david.r@dayflow.com', department: 'Sales', designation: 'Account Executive', joiningDate: '2024-01-20', status: 'ACTIVE' },
     ],
   };
 };

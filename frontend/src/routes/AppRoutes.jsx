@@ -4,34 +4,45 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 import RoleRoute from './RoleRoute.jsx';
 import DashboardLayout from '../components/layout/DashboardLayout.jsx';
 
-// Pages Import
+// Auth Pages
 import LoginPage from '../features/auth/pages/LoginPage.jsx';
 import SignupPage from '../features/auth/pages/SignupPage.jsx';
 import VerifyEmailPage from '../features/auth/pages/VerifyEmailPage.jsx';
 
+// Employee Pages
 import EmployeeDashboard from '../features/employee/pages/EmployeeDashboard.jsx';
 import EmployeeProfilePage from '../features/employee/pages/EmployeeProfilePage.jsx';
 import EmployeeManagementPage from '../features/employee/pages/EmployeeManagementPage.jsx';
 import EmployeeDetailPage from '../features/employee/pages/EmployeeDetailPage.jsx';
 
+// Attendance Pages
 import AttendancePage from '../features/attendance/pages/AttendancePage.jsx';
 import AdminAttendancePage from '../features/attendance/pages/AdminAttendancePage.jsx';
 
+// Leave Pages
 import LeavePage from '../features/leave/pages/LeavePage.jsx';
 import LeaveCalendarPage from '../features/leave/pages/LeaveCalendarPage.jsx';
 import AdminLeavePage from '../features/leave/pages/AdminLeavePage.jsx';
 
+// Payroll Pages
 import PayrollPage from '../features/payroll/pages/PayrollPage.jsx';
 import AdminPayrollPage from '../features/payroll/pages/AdminPayrollPage.jsx';
 
+// Documents Pages
 import DocumentsPage from '../features/documents/pages/DocumentsPage.jsx';
 import AdminDocumentsPage from '../features/documents/pages/AdminDocumentsPage.jsx';
 
+// Notifications Pages
 import NotificationsPage from '../features/notifications/pages/NotificationsPage.jsx';
 import AdminNotificationsPage from '../features/notifications/pages/AdminNotificationsPage.jsx';
 
+// Dashboard & Reports Pages (Member 4)
 import AdminDashboard from '../features/reports/pages/AdminDashboard.jsx';
 import ReportsPage from '../features/reports/pages/ReportsPage.jsx';
+import AttendanceReport from '../features/reports/pages/AttendanceReport.jsx';
+import LeaveReport from '../features/reports/pages/LeaveReport.jsx';
+import PayrollReport from '../features/reports/pages/PayrollReport.jsx';
+import EmployeeReport from '../features/reports/pages/EmployeeReport.jsx';
 
 export default function AppRoutes() {
   return (
@@ -82,6 +93,10 @@ export default function AppRoutes() {
           <Route path="payroll" element={<AdminPayrollPage />} />
           <Route path="documents" element={<AdminDocumentsPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="reports/attendance" element={<AttendanceReport />} />
+          <Route path="reports/leave" element={<LeaveReport />} />
+          <Route path="reports/payroll" element={<PayrollReport />} />
+          <Route path="reports/employees" element={<EmployeeReport />} />
           <Route path="notifications" element={<AdminNotificationsPage />} />
         </Route>
 

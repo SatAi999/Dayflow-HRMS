@@ -1,5 +1,23 @@
 import * as reportService from './report.service.js';
 
+export const getAdminDashboardStats = async (req, res, next) => {
+  try {
+    const dashboard = await reportService.generateAdminDashboardSummary();
+    res.status(200).json({ success: true, dashboard });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getEmployeeDashboardStats = async (req, res, next) => {
+  try {
+    const dashboard = await reportService.generateEmployeeDashboardSummary(req.user?.id);
+    res.status(200).json({ success: true, dashboard });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getAttendanceReport = async (req, res, next) => {
   try {
     const report = await reportService.generateAttendanceSummary();
