@@ -60,12 +60,12 @@ export default function EmployeeDashboard() {
   return (
     <div className="space-y-6">
       {/* Greeting Header */}
-      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-800 text-white shadow-md">
+      <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-700 via-indigo-750 to-purple-800 text-white shadow-lg transform hover:scale-[1.002] transition-all duration-300">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Good morning, {displayName}!</h1>
-            <p className="text-blue-100 text-xs sm:text-sm mt-1">
-              Welcome back to Dayflow HRMS. You are checked in for today.
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Hello, {displayName}!</h1>
+            <p className="text-blue-100 text-xs sm:text-sm mt-1.5 font-medium">
+              Welcome back to Dayflow HRMS. Your workforce portal is active.
             </p>
           </div>
           <Button variant="secondary" size="md" onClick={() => navigate('/employee/attendance')}>
